@@ -9,7 +9,15 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func GetProducts(ctx *gin.Context) {
+type ProductDatabase interface {
+	GetProducts(param *model.Pagination) ([]*model.Product, error)
+}
+
+type ProductAPI struct {
+	DB ProductDatabase
+}
+
+func (db *ProductAPI) GetProducts(ctx *gin.Context) {
 	param := model.Pagination{}
 
 	if err := ctx.ShouldBind(&param); err != nil {
@@ -17,9 +25,18 @@ func GetProducts(ctx *gin.Context) {
 		return
 	}
 
+	products, err := db.DB.GetProducts(&param)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "Fetch products failed",
+			"error":   err.Error(),
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Products fetched.",
-		"data":    param,
+		"data":    products,
 	})
 }
 

@@ -3,16 +3,18 @@ package router
 import (
 	"final_project/api"
 	authentication "final_project/auth"
-	"os"
+	"final_project/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Execute() {
+func Execute(db *repository.Database) *gin.Engine {
 	r := gin.New()
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+
+	productHandler := api.ProductAPI{DB: db}
 
 	// Auth
 	auth := r.Group("/auth")
@@ -24,7 +26,7 @@ func Execute() {
 	// Product
 	product := r.Group("/products")
 	{
-		product.GET("/", api.GetProducts)
+		product.GET("/", productHandler.GetProducts)
 		product.POST("/", api.CreateProduct)
 		product.GET("/:uuid", api.GetProduct)
 		product.PUT("/:uuid", api.UpdateProduct)
@@ -42,5 +44,5 @@ func Execute() {
 		variant.DELETE("/:uuid", api.DeleteVariant)
 	}
 
-	r.Run(os.Getenv("SERVER_PORT"))
+	return r
 }
