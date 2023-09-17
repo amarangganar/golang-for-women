@@ -9,7 +9,7 @@ import (
 )
 
 func SignIn(ctx *gin.Context) {
-	admin := model.UserSignIn{}
+	admin := model.AdminSignIn{}
 
 	if err := ctx.ShouldBind(&admin); err != nil {
 		v.Validate(ctx, &admin, err, "Sign in failed.", v.ValidateField)
@@ -23,7 +23,7 @@ func SignIn(ctx *gin.Context) {
 }
 
 func Register(ctx *gin.Context) {
-	admin := model.UserRegister{}
+	admin := model.AdminRegister{}
 
 	if err := ctx.ShouldBind(&admin); err != nil {
 		v.Validate(ctx, &admin, err, "Register failed.", v.ValidateField)
