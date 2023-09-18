@@ -4,6 +4,7 @@ import (
 	"final_project/auth"
 	"final_project/model"
 	"final_project/repository"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -100,7 +101,8 @@ func VariantAuthorization(db *repository.Database) gin.HandlerFunc {
 			}
 
 			if ctx.Request.Method == "DELETE" {
-				if variant.Product.ID != admin_id {
+				fmt.Println((variant.ProductID))
+				if variant.Product.AdminID != admin_id {
 					ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 						"error":   "unauthorized",
 						"message": "you are not allowed to access this api",
