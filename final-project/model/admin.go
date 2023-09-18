@@ -1,16 +1,29 @@
 package model
 
-import "time"
+import (
+	"final_project/helpers"
+	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type Admin struct {
-	ID        uint      `gorm:"primaryKey;AUTO_INCREMENT"`
-	UUID      string    `gorm:"not null"`
-	Name      string    `gorm:"not null"`
-	Email     string    `gorm:"not null;unique"`
-	Password  string    `gorm:"not null"`
-	Products  []Product `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	ID        uint      `json:"id" gorm:"primaryKey;AUTO_INCREMENT"`
+	UUID      string    `json:"uuid" gorm:"not null"`
+	Name      string    `json:"name" gorm:"not null"`
+	Email     string    `json:"email" gorm:"not null;unique"`
+	Password  string    `json:"-" gorm:"not null"`
+	Products  []Product `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+func (admin *Admin) BeforeCreate(tx *gorm.DB) (err error) {
+	admin.UUID = uuid.NewString()
+	admin.Password = helpers.HashPassword(admin.Password)
+
+	return
 }
 
 type AdminSignIn struct {

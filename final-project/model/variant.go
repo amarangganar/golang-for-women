@@ -3,12 +3,12 @@ package model
 import "time"
 
 type Variant struct {
-	ID          uint   `gorm:"primaryKey;AUTO_INCREMENT"`
-	UUID        string `gorm:"not null"`
-	VariantName string `gorm:"not null"`
-	Quantity    int    `gorm:"not null"`
-	ProductID   uint
-	Product     Product
+	ID          uint    `json:"id" gorm:"primaryKey;AUTO_INCREMENT"`
+	UUID        string  `json:"uuid" gorm:"not null"`
+	VariantName string  `json:"variant_name" gorm:"not null"`
+	Quantity    int     `json:"quantity" gorm:"not null"`
+	ProductID   uint    `json:"-"`
+	Product     Product `json:"product"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
