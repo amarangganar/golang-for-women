@@ -17,5 +17,7 @@ This is final project for Golang for Women class. Details on the project is expl
 | PUT    | `/products/variants/:uuid` | Update variant of specific UUID             |
 | DELETE | `/products/variants/:uuid` | Delete variant of specific UUID             |
 
+To access this project via postman, you can import [this](https://api.postman.com/collections/28968065-5c6aac55-3bac-49b6-a69a-f8575ab2168a?access_key=PMAT-01HAMKNEWHEPQ071RWMYP6N3K2) json.
+
 # Deployment
 This project is deployed on *TBA*
