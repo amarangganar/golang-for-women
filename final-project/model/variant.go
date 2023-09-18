@@ -10,7 +10,7 @@ type Variant struct {
 	VariantName string    `json:"variant_name" gorm:"not null"`
 	Quantity    int       `json:"quantity" gorm:"not null"`
 	ProductID   uint      `json:"-"`
-	Product     Product   `json:"product,omitempty"`
+	Product     *Product  `json:"product,omitempty"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

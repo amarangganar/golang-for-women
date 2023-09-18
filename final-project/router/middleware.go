@@ -59,6 +59,7 @@ func VariantAuthorization(db *repository.Database) gin.HandlerFunc {
 
 			var product *model.Product
 			err := db.DB.Select("admin_id").Where("uuid = ?", product_id).First(&product).Error
+
 			if err != nil || product.AdminID != admin_id {
 				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 					"error":   "unauthorized",
@@ -73,9 +74,8 @@ func VariantAuthorization(db *repository.Database) gin.HandlerFunc {
 		uuid := ctx.Param("uuid")
 		if uuid != "" {
 			var variant *model.Variant
-			err := db.DB.Preload("Product").Where("uuid = ?", uuid).First(&variant).Error
-
-			if err != nil || variant.Product.AdminID != admin_id {
+			err := db.DB.Where("uuid = ?", uuid).Preload("Product").First(&variant).Error
+			if err != nil {
 				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 					"error":   "unauthorized",
 					"message": "you are not allowed to access this api",
@@ -96,6 +96,16 @@ func VariantAuthorization(db *repository.Database) gin.HandlerFunc {
 
 						return
 					}
+				}
+			}
+
+			if ctx.Request.Method == "DELETE" {
+				if variant.ProductID != admin_id {
+					ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+						"error":   "unauthorized",
+						"message": "you are not allowed to access this api",
+					})
+					return
 				}
 			}
 		}
