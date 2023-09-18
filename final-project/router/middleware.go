@@ -100,7 +100,7 @@ func VariantAuthorization(db *repository.Database) gin.HandlerFunc {
 			}
 
 			if ctx.Request.Method == "DELETE" {
-				if variant.ProductID != admin_id {
+				if variant.Product.ID != admin_id {
 					ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 						"error":   "unauthorized",
 						"message": "you are not allowed to access this api",
