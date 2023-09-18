@@ -35,21 +35,69 @@ func ProductAuthorization(db *repository.Database) gin.HandlerFunc {
 
 		var product *model.Product
 		err := db.DB.Select("admin_id").Where("uuid = ?", uuid).First(&product).Error
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"message": "fetch product failed",
-				"error":   err.Error(),
+		if err != nil || product.AdminID != admin_id {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error":   "unauthorized",
+				"message": "you are not allowed to access this api",
 			})
 
 			return
 		}
 
-		if product.AdminID != admin_id {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error":   "unauthorized",
-				"message": "you are not allowed to access this product",
-			})
-			return
+		ctx.Next()
+	}
+}
+
+func VariantAuthorization(db *repository.Database) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		admin := ctx.MustGet("admin").(jwt.MapClaims)
+		admin_id := uint(admin["id"].(float64))
+
+		// authorize create api
+		if ctx.Request.Method == "POST" {
+			product_id := ctx.Request.FormValue("product_id")
+
+			var product *model.Product
+			err := db.DB.Select("admin_id").Where("uuid = ?", product_id).First(&product).Error
+			if err != nil || product.AdminID != admin_id {
+				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+					"error":   "unauthorized",
+					"message": "you are not the owner of the product",
+				})
+
+				return
+			}
+		}
+
+		// authorize updte and delete
+		uuid := ctx.Param("uuid")
+		if uuid != "" {
+			var variant *model.Variant
+			err := db.DB.Preload("Product").Where("uuid = ?", uuid).First(&variant).Error
+
+			if err != nil || variant.Product.AdminID != admin_id {
+				ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+					"error":   "unauthorized",
+					"message": "you are not allowed to access this api",
+				})
+				return
+			}
+
+			if ctx.Request.Method == "PUT" {
+				product_id := ctx.Request.FormValue("product_id")
+				if product_id != "" {
+					var product *model.Product
+					err := db.DB.Select("admin_id").Where("uuid = ?", product_id).First(&product).Error
+					if err != nil || product.AdminID != admin_id {
+						ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+							"error":   "unauthorized",
+							"message": "you are not the owner of the product",
+						})
+
+						return
+					}
+				}
+			}
 		}
 
 		ctx.Next()

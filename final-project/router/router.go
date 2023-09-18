@@ -30,6 +30,22 @@ func Execute(db *repository.Database, cld *cloudinary.Cloudinary) *gin.Engine {
 	product := r.Group("/products")
 	{
 		product.GET("/", productHandler.GetProducts)
+
+		// Variant
+		variant := product.Group("/variants")
+		{
+
+			variant.GET("/", variantHandler.GetVariants)
+			variant.GET("/:uuid", variantHandler.GetVariant)
+
+			variant.Use(Authenticate())
+			variant.Use(VariantAuthorization(db))
+
+			variant.POST("/", variantHandler.CreateVariant)
+			variant.PUT("/:uuid", variantHandler.UpdateVariant)
+			variant.DELETE("/:uuid", variantHandler.DeleteVariant)
+		}
+
 		product.GET("/:uuid", productHandler.GetProduct)
 
 		product.Use(Authenticate())
@@ -38,17 +54,7 @@ func Execute(db *repository.Database, cld *cloudinary.Cloudinary) *gin.Engine {
 		product.Use(ProductAuthorization(db))
 		product.PUT("/:uuid", productHandler.UpdateProduct)
 		product.DELETE("/:uuid", productHandler.DeleteProduct)
-	}
 
-	// Product
-	variant := r.Group("/variants")
-	{
-
-		variant.GET("/", variantHandler.GetVariants)
-		variant.POST("/", api.CreateVariant)
-		variant.GET("/:uuid", api.GetVariant)
-		variant.PUT("/:uuid", api.UpdateVariant)
-		variant.DELETE("/:uuid", api.DeleteVariant)
 	}
 
 	return r
