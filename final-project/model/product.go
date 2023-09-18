@@ -2,9 +2,6 @@ package model
 
 import (
 	"time"
-
-	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type Product struct {
@@ -13,16 +10,10 @@ type Product struct {
 	Name      string    `json:"name" gorm:"not null"`
 	ImageURL  string    `json:"image_url" gorm:"not null"`
 	AdminID   uint      `json:"-"`
-	Admin     Admin     `json:"admin"`
-	Variants  []Variant `json:"variants" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (product *Product) BeforeCreate(tx *gorm.DB) (err error) {
-	product.UUID = uuid.NewString()
-
-	return
+	Admin     Admin     `json:"admin,omitempty"`
+	Variants  []Variant `json:"variants,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type NewProduct struct {
@@ -36,7 +27,6 @@ type UUIDProduct struct {
 }
 
 type ExistingProduct struct {
-	UUID string `uri:"uuid" validate:"required,uuid"`
 	Name string `form:"name" validate:"required"`
 	File string `form:"file"`
 }

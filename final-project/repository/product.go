@@ -2,6 +2,8 @@ package repository
 
 import (
 	"final_project/model"
+
+	"github.com/google/uuid"
 )
 
 type ProductList struct {
@@ -26,6 +28,7 @@ func (db *Database) GetProducts(param *model.ListQueryParam) (*ProductList, erro
 
 func (db *Database) CreateProduct(body *model.NewProduct) (*model.Product, error) {
 	product := model.Product{
+		UUID:     uuid.NewString(),
 		Name:     body.Name,
 		ImageURL: body.File,
 		AdminID:  *body.AdminID,
@@ -48,8 +51,8 @@ func (db *Database) GetProduct(uuid string) (*model.Product, error) {
 	return product, err
 }
 
-func (db *Database) UpdateProduct(body *model.ExistingProduct) (*model.Product, error) {
-	product, err := db.GetProduct(body.UUID)
+func (db *Database) UpdateProduct(uuid string, body *model.ExistingProduct) (*model.Product, error) {
+	product, err := db.GetProduct(uuid)
 	if err != nil {
 		return nil, err
 	}

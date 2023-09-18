@@ -4,7 +4,6 @@ import (
 	"final_project/helpers"
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -15,12 +14,11 @@ type Admin struct {
 	Email     string    `json:"email" gorm:"not null;unique"`
 	Password  string    `json:"-" gorm:"not null"`
 	Products  []Product `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (admin *Admin) BeforeCreate(tx *gorm.DB) (err error) {
-	admin.UUID = uuid.NewString()
 	admin.Password = helpers.HashPassword(admin.Password)
 
 	return

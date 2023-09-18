@@ -17,7 +17,7 @@ type ProductDatabase interface {
 	GetProducts(param *model.ListQueryParam) (*repository.ProductList, error)
 	CreateProduct(body *model.NewProduct) (*model.Product, error)
 	GetProduct(uuid string) (*model.Product, error)
-	UpdateProduct(body *model.ExistingProduct) (*model.Product, error)
+	UpdateProduct(uuid string, body *model.ExistingProduct) (*model.Product, error)
 	DeleteProduct(uuid string) error
 }
 
@@ -123,9 +123,13 @@ func (api *ProductAPI) GetProduct(ctx *gin.Context) {
 }
 
 func (api *ProductAPI) UpdateProduct(ctx *gin.Context) {
-	body := model.ExistingProduct{}
+	uri := model.UUIDProduct{}
+	if err := ctx.ShouldBindUri(&uri); err != nil {
+		v.Validate(ctx, &uri, err, "update variant failed", v.ValidateField)
+		return
+	}
 
-	body.UUID = ctx.Param("uuid")
+	body := model.ExistingProduct{}
 	body.Name = ctx.Request.FormValue("name")
 
 	// check file
@@ -155,7 +159,7 @@ func (api *ProductAPI) UpdateProduct(ctx *gin.Context) {
 		body.File = upload.URL
 	}
 
-	result, err := api.DB.UpdateProduct(&body)
+	result, err := api.DB.UpdateProduct(uri.UUID, &body)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "update product failed",
@@ -171,14 +175,14 @@ func (api *ProductAPI) UpdateProduct(ctx *gin.Context) {
 }
 
 func (api *ProductAPI) DeleteProduct(ctx *gin.Context) {
-	body := model.UUIDProduct{}
+	uri := model.UUIDProduct{}
 
-	if err := ctx.ShouldBindUri(&body); err != nil {
-		v.Validate(ctx, &body, err, "delete product failed", v.ValidateField)
+	if err := ctx.ShouldBindUri(&uri); err != nil {
+		v.Validate(ctx, &uri, err, "delete product failed", v.ValidateField)
 		return
 	}
 
-	err := api.DB.DeleteProduct(body.UUID)
+	err := api.DB.DeleteProduct(uri.UUID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "delete product failed",
